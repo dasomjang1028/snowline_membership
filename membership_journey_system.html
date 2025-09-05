@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스노우라인 멤버십 여정 시스템</title>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
+            background: #FFFFFF;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: #F97316;
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .brand-logo {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .user-status {
+            background: white;
+            margin: 30px;
+            padding: 30px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .current-tier {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #F97316;
+            border-radius: 8px;
+            color: white;
+        }
+
+        .tier-info h3 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .tier-info p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .tier-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .progress-bar-container {
+            background: #F3F4F6;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #F97316;
+            border-radius: 6px;
+            transition: width 0.8s ease;
+            position: relative;
+        }
+
+        .next-tier {
+            background: #F9FAFB;
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px dashed #D1D5DB;
+            text-align: center;
+        }
+
+        .next-tier h4 {
+            color: #374151;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .next-tier p {
+            color: #6B7280;
+            font-size: 14px;
+        }
+
+        .tiers-section {
+            padding: 30px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .tier-card {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tier-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #F97316;
+        }
+
+        .tier-card.family::before { background: #10B981; }
+        .tier-card.gold::before { background: #F59E0B; }
+        .tier-card.vip::before { background: #8B5CF6; }
+        .tier-card.vvip::before { background: #EF4444; }
+
+        .tier-card:hover {
+            border-color: #F97316;
+        }
+
+        .tier-card.current {
+            border-color: #F97316;
+        }
+
+        .tier-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tier-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+
+        .tier-card.family .tier-icon { background: #10B981; }
+        .tier-card.gold .tier-icon { background: #F59E0B; }
+        .tier-card.vip .tier-icon { background: #8B5CF6; }
+        .tier-card.vvip .tier-icon { background: #EF4444; }
+
+        .tier-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 5px;
+        }
+
+        .tier-subtitle {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .tier-requirements {
+            background: #F9FAFB;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .tier-requirements h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .tier-requirements p {
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        .benefits-list {
+            list-style: none;
+        }
+
+        .benefits-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #374151;
+        }
+
+        .benefits-list li::before {
+            content: '✓';
+            color: #10B981;
+            font-weight: bold;
+            margin-right: 10px;
+            width: 16px;
+            height: 16px;
+            background: #ECFDF5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .activities-section {
+            padding: 30px;
+            background: #F9FAFB;
+        }
+
+        .activities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .activity-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #E5E7EB;
+        }
+
+        .activity-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .activity-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1F2937;
+        }
+
+        .activity-points {
+            background: #F97316;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .activity-description {
+            font-size: 14px;
+            color: #6B7280;
+            line-height: 1.5;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            padding: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: #F97316;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #EA580C;
+        }
+
+        .btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #D1D5DB;
+        }
+
+        .btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #E5E7EB;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F2937;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #6B7280;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 16px;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .brand-logo {
+                font-size: 28px;
+            }
+            
+            .header-title {
+                font-size: 22px;
+            }
+            
+            .user-status {
+                margin: 20px;
+                padding: 20px;
+            }
+            
+            .tiers-section, .activities-section {
+                padding: 20px;
+            }
+            
+            .tiers-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .activities-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="brand-logo">🏔️ SNOWLINE</div>
+            <h1 class="header-title">멤버십 여정 시스템</h1>
+            <p class="header-subtitle">당신의 충성도에 따라 더 특별한 혜택을 받아보세요</p>
+        </div>
+
+        <div class="user-status">
+            <div class="current-tier">
+                <div class="tier-info">
+                    <h3 id="currentTierName">골드</h3>
+                    <p id="currentTierDesc">신뢰하는 파트너</p>
+                </div>
+                <div class="tier-badge" id="currentTierBadge">GOLD</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-title">다음 등급까지</span>
+                    <span class="progress-text" id="progressText">150점 남음</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progressBar" style="width: 75%"></div>
+                </div>
+            </div>
+
+            <div class="next-tier">
+                <h4 id="nextTierName">VIP 등급</h4>
+                <p id="nextTierDesc">600점 달성 시 VIP 등급으로 승급됩니다</p>
+            </div>
+        </div>
+
+        <div class="tiers-section">
+            <h2 class="section-title">멤버십 등급</h2>
+            <div class="tiers-grid">
+                <div class="tier-card family" id="familyCard">
+                    <div class="tier-header">
+                        <div class="tier-icon">👨‍👩‍👧‍👦</div>
+                        <div>
+                            <div class="tier-name">패밀리</div>
+                            <div class="tier-subtitle">시작하는 가족</div>
+                        </div>
+                    </div>
+                    <div class="tier-requirements">
+                        <h4>승급 조건</h4>
+                        <p>0-199점</p>
+                    </div>
+                    <ul class="benefits-list">
+                        <li>신규 가입 쿠폰 및 웰컴 키트</li>
+                        <li>기본 고객 지원</li>
+                        <li>월 1회 무료배송 쿠폰</li>
+                        <li>브랜드 스토리 및 사용 가이드</li>
+                    </ul>
+                </div>
+
+                <div class="tier-card gold current" id="goldCard">
+                    <div class="tier-header">
+                        <div class="tier-icon">⭐</div>
+                        <div>
+                            <div class="tier-name">골드</div>
+                            <div class="tier-subtitle">신뢰하는 파트너</div>
+                        </div>
+                    </div>
+                    <div class="tier-requirements">
+                        <h4>승급 조건</h4>
+                        <p>200-599점</p>
+                    </div>
+                    <ul class="benefits-list">
+                        <li>전 상품 5% 추가 할인</li>
+                        <li>무제한 무료배송</li>
+                        <li>우선 고객지원 (24시간 내 응답)</li>
+                        <li>월 1회 골드 회원 특가</li>
+                        <li>골드 회원 전용 커뮤니티</li>
+                    </ul>
+                </div>
+
+                <div class="tier-card vip" id="vipCard">
+                    <div class="tier-header">
+                        <div class="tier-icon">💎</div>
+                        <div>
+                            <div class="tier-name">VIP</div>
+                            <div class="tier-subtitle">특별한 고객</div>
+                        </div>
+                    </div>
+                    <div class="tier-requirements">
+                        <h4>승급 조건</h4>
+                        <p>600-1199점</p>
+                    </div>
+                    <ul class="benefits-list">
+                        <li>전 상품 10% 추가 할인</li>
+                        <li>당일/익일 배송 서비스</li>
+                        <li>전담 고객 매니저 배정</li>
+                        <li>VIP 전용 상품라인 접근</li>
+                        <li>월 2회 VIP 전용 특가</li>
+                        <li>분기별 VIP 라운지 이벤트</li>
+                    </ul>
+                </div>
+
+                <div class="tier-card vvip" id="vvipCard">
+                    <div class="tier-header">
+                        <div class="tier-icon">👑</div>
+                        <div>
+                            <div class="tier-name">VVIP</div>
+                            <div class="tier-subtitle">브랜드 앰배서더</div>
+                        </div>
+                    </div>
+                    <div class="tier-requirements">
+                        <h4>승급 조건</h4>
+                        <p>1200점+</p>
+                    </div>
+                    <ul class="benefits-list">
+                        <li>전 상품 15% 추가 할인</li>
+                        <li>무료 프리미엄 배송</li>
+                        <li>24/7 전담 컨시어지 서비스</li>
+                        <li>VVIP 한정 상품 우선 구매권</li>
+                        <li>무제한 교환/반품 서비스</li>
+                        <li>연 4회 VVIP 전용 오프라인 이벤트</li>
+                        <li>브랜드 의사결정 과정 참여</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="activities-section">
+            <h2 class="section-title">포인트 획득 활동</h2>
+            <div class="activities-grid">
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">기본 활동</span>
+                    </div>
+                    <div class="activity-description">
+                        <p><strong>로그인:</strong> 2점/일 (월 최대 60점)</p>
+                        <p><strong>상품 구매:</strong> 결제금액의 1%</p>
+                        <p><strong>서비스 이용:</strong> 3-8점/회</p>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">품질 활동</span>
+                    </div>
+                    <div class="activity-description">
+                        <p><strong>상품 리뷰 작성:</strong> 15점 (사진 포함 시 +10점)</p>
+                        <p><strong>평점 참여:</strong> 5점</p>
+                        <p><strong>Q&A 참여:</strong> 10점</p>
+                        <p><strong>커뮤니티 활동:</strong> 댓글 5점, 게시글 20점</p>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">관계 구축</span>
+                    </div>
+                    <div class="activity-description">
+                        <p><strong>친구/가족 초대:</strong> 50점 (가입 완료 시)</p>
+                        <p><strong>SNS 공유:</strong> 8점</p>
+                        <p><strong>브랜드 이벤트 참여:</strong> 20-100점</p>
+                    </div>
+                </div>
+
+                <div class="activity-card">
+                    <div class="activity-header">
+                        <span class="activity-title">충성도 보너스</span>
+                    </div>
+                    <div class="activity-description">
+                        <p><strong>월 1회 이상 이용:</strong> +30점</p>
+                        <p><strong>3개월 연속 이용:</strong> +150점</p>
+                        <p><strong>6개월 연속 이용:</strong> +400점</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openActivityModal()">활동 참여하기</button>
+            <button class="btn btn-secondary" onclick="openBenefitsModal()">혜택 상세보기</button>
+        </div>
+    </div>
+
+    <!-- 활동 참여 모달 -->
+    <div class="modal" id="activityModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">포인트 획득 활동</h3>
+                <button class="close-btn" onclick="closeActivityModal()">&times;</button>
+            </div>
+            <div class="activity-options">
+                <div class="activity-option" onclick="earnPoints('login', 2)">
+                    <h4>일일 로그인</h4>
+                    <p>+2점</p>
+                </div>
+                <div class="activity-option" onclick="earnPoints('review', 15)">
+                    <h4>리뷰 작성</h4>
+                    <p>+15점</p>
+                </div>
+                <div class="activity-option" onclick="earnPoints('share', 8)">
+                    <h4>SNS 공유</h4>
+                    <p>+8점</p>
+                </div>
+                <div class="activity-option" onclick="earnPoints('invite', 50)">
+                    <h4>친구 초대</h4>
+                    <p>+50점</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 혜택 상세 모달 -->
+    <div class="modal" id="benefitsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">현재 등급 혜택</h3>
+                <button class="close-btn" onclick="closeBenefitsModal()">&times;</button>
+            </div>
+            <div id="benefitsContent">
+                <!-- 동적으로 생성될 혜택 내용 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 사용자 데이터
+        let userData = {
+            currentTier: 'gold',
+            currentPoints: 450,
+            totalPoints: 450,
+            activities: {
+                login: 0,
+                purchase: 0,
+                review: 0,
+                share: 0,
+                invite: 0
+            }
+        };
+
+        // 등급 정보
+        const tierInfo = {
+            family: {
+                name: '패밀리',
+                subtitle: '시작하는 가족',
+                minPoints: 0,
+                maxPoints: 199,
+                color: '#10B981',
+                benefits: [
+                    '신규 가입 쿠폰 및 웰컴 키트',
+                    '기본 고객 지원',
+                    '월 1회 무료배송 쿠폰',
+                    '브랜드 스토리 및 사용 가이드 제공'
+                ]
+            },
+            gold: {
+                name: '골드',
+                subtitle: '신뢰하는 파트너',
+                minPoints: 200,
+                maxPoints: 599,
+                color: '#F59E0B',
+                benefits: [
+                    '전 상품 5% 추가 할인',
+                    '무제한 무료배송',
+                    '우선 고객지원 (24시간 내 응답)',
+                    '월 1회 골드 회원 특가',
+                    '골드 회원 전용 커뮤니티 참여'
+                ]
+            },
+            vip: {
+                name: 'VIP',
+                subtitle: '특별한 고객',
+                minPoints: 600,
+                maxPoints: 1199,
+                color: '#8B5CF6',
+                benefits: [
+                    '전 상품 10% 추가 할인',
+                    '당일/익일 배송 서비스',
+                    '전담 고객 매니저 배정',
+                    'VIP 전용 상품라인 접근',
+                    '월 2회 VIP 전용 특가',
+                    '분기별 VIP 라운지 이벤트'
+                ]
+            },
+            vvip: {
+                name: 'VVIP',
+                subtitle: '브랜드 앰배서더',
+                minPoints: 1200,
+                maxPoints: Infinity,
+                color: '#EF4444',
+                benefits: [
+                    '전 상품 15% 추가 할인',
+                    '무료 프리미엄 배송',
+                    '24/7 전담 컨시어지 서비스',
+                    'VVIP 한정 상품 우선 구매권',
+                    '무제한 교환/반품 서비스',
+                    '연 4회 VVIP 전용 오프라인 이벤트',
+                    '브랜드 의사결정 과정 참여'
+                ]
+            }
+        };
+
+        // 현재 등급 계산
+        function getCurrentTier(points) {
+            for (const [tier, info] of Object.entries(tierInfo)) {
+                if (points >= info.minPoints && points <= info.maxPoints) {
+                    return tier;
+                }
+            }
+            return 'family';
+        }
+
+        // 다음 등급 계산
+        function getNextTier(currentTier) {
+            const tiers = ['family', 'gold', 'vip', 'vvip'];
+            const currentIndex = tiers.indexOf(currentTier);
+            return currentIndex < tiers.length - 1 ? tiers[currentIndex + 1] : null;
+        }
+
+        // UI 업데이트
+        function updateUI() {
+            const currentTier = getCurrentTier(userData.currentPoints);
+            const nextTier = getNextTier(currentTier);
+            const currentTierInfo = tierInfo[currentTier];
+
+            // 현재 등급 정보 업데이트
+            document.getElementById('currentTierName').textContent = currentTierInfo.name;
+            document.getElementById('currentTierDesc').textContent = currentTierInfo.subtitle;
+            document.getElementById('currentTierBadge').textContent = currentTierInfo.name.toUpperCase();
+
+            // 진행도 업데이트
+            if (nextTier) {
+                const nextTierInfo = tierInfo[nextTier];
+                const progress = ((userData.currentPoints - currentTierInfo.minPoints) / 
+                                (nextTierInfo.minPoints - currentTierInfo.minPoints)) * 100;
+                const remainingPoints = nextTierInfo.minPoints - userData.currentPoints;
+
+                document.getElementById('progressBar').style.width = `${Math.min(progress, 100)}%`;
+                document.getElementById('progressText').textContent = `${remainingPoints}점 남음`;
+                document.getElementById('nextTierName').textContent = `${nextTierInfo.name} 등급`;
+                document.getElementById('nextTierDesc').textContent = 
+                    `${nextTierInfo.minPoints}점 달성 시 ${nextTierInfo.name} 등급으로 승급됩니다`;
+            } else {
+                document.getElementById('progressBar').style.width = '100%';
+                document.getElementById('progressText').textContent = '최고 등급 달성!';
+                document.getElementById('nextTierName').textContent = '최고 등급';
+                document.getElementById('nextTierDesc').textContent = '축하합니다! 최고 등급에 도달하셨습니다.';
+            }
+
+            // 등급 카드 업데이트
+            document.querySelectorAll('.tier-card').forEach(card => {
+                card.classList.remove('current');
+            });
+            document.getElementById(`${currentTier}Card`).classList.add('current');
+        }
+
+        // 포인트 획득
+        function earnPoints(activity, points) {
+            userData.currentPoints += points;
+            userData.totalPoints += points;
+            userData.activities[activity]++;
+
+            // 로컬 스토리지에 저장
+            localStorage.setItem('snowline_membership_data', JSON.stringify(userData));
+
+            updateUI();
+            showPointsEarned(points);
+            closeActivityModal();
+
+            // 등급업 체크
+            checkTierUpgrade();
+        }
+
+        // 포인트 획득 알림
+        function showPointsEarned(points) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10B981;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                font-weight: 600;
+                z-index: 2000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = `+${points}점 획득!`;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // 등급업 체크
+        function checkTierUpgrade() {
+            const currentTier = getCurrentTier(userData.currentPoints);
+            if (currentTier !== userData.currentTier) {
+                userData.currentTier = currentTier;
+                showTierUpgradeNotification(currentTier);
+            }
+        }
+
+        // 등급업 알림
+        function showTierUpgradeNotification(newTier) {
+            const tierInfo = tierInfo[newTier];
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 30px;
+                border-radius: 16px;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+                text-align: center;
+                z-index: 2000;
+                animation: scaleIn 0.5s ease;
+            `;
+            notification.innerHTML = `
+                <h3 style="color: #1F2937; margin-bottom: 15px;">🎉 등급업 축하합니다! 🎉</h3>
+                <p style="font-size: 18px; font-weight: 600; color: ${tierInfo.color}; margin-bottom: 10px;">
+                    ${tierInfo.name} 등급
+                </p>
+                <p style="color: #6B7280; margin-bottom: 20px;">${tierInfo.subtitle}</p>
+                <button onclick="this.parentElement.remove()" style="
+                    background: #F97316;
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                ">확인</button>
+            `;
+            document.body.appendChild(notification);
+        }
+
+        // 모달 함수들
+        function openActivityModal() {
+            document.getElementById('activityModal').style.display = 'flex';
+        }
+
+        function closeActivityModal() {
+            document.getElementById('activityModal').style.display = 'none';
+        }
+
+        function openBenefitsModal() {
+            const currentTier = getCurrentTier(userData.currentPoints);
+            const currentTierInfo = tierInfo[currentTier];
+            
+            const benefitsContent = document.getElementById('benefitsContent');
+            benefitsContent.innerHTML = `
+                <h4 style="color: #1F2937; margin-bottom: 15px;">${currentTierInfo.name} 등급 혜택</h4>
+                <ul style="list-style: none; padding: 0;">
+                    ${currentTierInfo.benefits.map(benefit => `
+                        <li style="display: flex; align-items: center; margin-bottom: 10px; color: #374151;">
+                            <span style="color: #10B981; font-weight: bold; margin-right: 10px;">✓</span>
+                            ${benefit}
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+            
+            document.getElementById('benefitsModal').style.display = 'flex';
+        }
+
+        function closeBenefitsModal() {
+            document.getElementById('benefitsModal').style.display = 'none';
+        }
+
+        // 모달 배경 클릭시 닫기
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        });
+
+        // 초기화
+        function init() {
+            // 로컬 스토리지에서 데이터 로드
+            const savedData = localStorage.getItem('snowline_membership_data');
+            if (savedData) {
+                userData = { ...userData, ...JSON.parse(savedData) };
+            }
+
+            updateUI();
+        }
+
+        // 페이지 로드시 초기화
+        window.addEventListener('load', init);
+
+        // CSS 애니메이션 추가
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes scaleIn {
+                from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+                to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            }
+            
+            .activity-option {
+                padding: 15px;
+                border: 1px solid #E5E7EB;
+                border-radius: 8px;
+                margin-bottom: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+            
+            .activity-option:hover {
+                background: #F9FAFB;
+                border-color: #F97316;
+            }
+            
+            .activity-option h4 {
+                color: #1F2937;
+                margin-bottom: 5px;
+            }
+            
+            .activity-option p {
+                color: #F97316;
+                font-weight: 600;
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>
